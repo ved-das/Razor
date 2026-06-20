@@ -1,272 +1,26 @@
-import type { Course, StudyState, StudyTask, TaskType } from "./types";
-import { lectureNumbersFromTitle } from "./schedule";
+import type { StudyState } from "./types";
 
-const courses: Course[] = [
-  {
-    id: "math-1",
-    name: "Math 1",
-    totalLectures: 27,
-    baselineCompletedLectures: 9,
-    completedLectures: 9,
-    hoursPerLecture: 2,
-    hasExam: false,
-    requiresRevision: false,
-    targetFinishDate: "2026-06-19",
-    priority: "high",
-    planningOrder: 1,
-  },
-  {
-    id: "math-2",
-    name: "Math 2",
-    examDate: "2026-07-10",
-    totalLectures: 27,
-    baselineCompletedLectures: 0,
-    completedLectures: 0,
-    hoursPerLecture: 2,
-    hasExam: true,
-    requiresRevision: true,
-    targetFinishDate: "2026-07-03",
-    priority: "high",
-    planningOrder: 2,
-    dependsOnId: "math-1",
-  },
-  {
-    id: "python-1",
-    name: "Python 1",
-    examDate: "2026-07-15",
-    totalLectures: 11,
-    baselineCompletedLectures: 0,
-    completedLectures: 0,
-    hoursPerLecture: 2,
-    hasExam: true,
-    requiresRevision: true,
-    targetFinishDate: "2026-07-03",
-    priority: "high",
-    planningOrder: 3,
-  },
-  {
-    id: "intro-ai",
-    name: "Intro to AI",
-    examDate: "2026-07-15",
-    totalLectures: 10,
-    baselineCompletedLectures: 0,
-    completedLectures: 0,
-    hoursPerLecture: 2,
-    hasExam: true,
-    requiresRevision: true,
-    targetFinishDate: "2026-07-03",
-    priority: "high",
-    planningOrder: 4,
-  },
-  {
-    id: "statistics-ai",
-    name: "Statistics AI",
-    examDate: "2026-10-24",
-    totalLectures: 14,
-    baselineCompletedLectures: 0,
-    completedLectures: 0,
-    hoursPerLecture: 2,
-    hasExam: true,
-    requiresRevision: true,
-    targetFinishDate: "2026-09-30",
-    priority: "medium",
-    planningOrder: 5,
-  },
-  {
-    id: "ads-1",
-    name: "ADS 1",
-    totalLectures: 12,
-    baselineCompletedLectures: 0,
-    completedLectures: 0,
-    hoursPerLecture: 2,
-    hasExam: false,
-    requiresRevision: false,
-    targetFinishDate: "2026-10-15",
-    priority: "low",
-    planningOrder: 6,
-  },
-];
-
-const courseNames = new Map(courses.map((course) => [course.id, course.name]));
-
-function task(
-  date: string,
-  title: string,
-  type: TaskType,
-  estimatedHours: number,
-  phase: string,
-  courseId?: string,
-): StudyTask {
-  const safeTitle = title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
-
-  const lectureNumbers = type === "lecture" ? lectureNumbersFromTitle(title) : undefined;
-
-  return {
-    id: `${date}-${safeTitle}`,
-    date,
-    title,
-    subject: courseId ? courseNames.get(courseId) ?? "General" : "General",
-    courseId,
-    lectureNumbers,
-    type,
-    phase,
-    estimatedHours,
-    completed: false,
-  };
+function localToday() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
-
-function lectureTasks(date: string, courseId: string, start: number, end: number, phase: string) {
-  const course = courses.find((item) => item.id === courseId);
-  const hours = course?.hoursPerLecture ?? 2;
-
-  return Array.from({ length: end - start + 1 }, (_, index) =>
-    task(date, `${courseNames.get(courseId)} L${start + index}`, "lecture", hours, phase, courseId),
-  );
-}
-
-const juneJulyTasks: StudyTask[] = [
-  ...lectureTasks("2026-06-14", "math-1", 10, 12, "Phase 1"),
-  task("2026-06-14", "Python 1 L1", "lecture", 2, "Phase 1", "python-1"),
-  task("2026-06-14", "Python coding practice", "coding", 1, "Phase 1", "python-1"),
-  ...lectureTasks("2026-06-15", "math-1", 13, 15, "Phase 1"),
-  task("2026-06-15", "Intro to AI L1", "lecture", 2, "Phase 1", "intro-ai"),
-  task("2026-06-15", "Python coding practice", "coding", 1, "Phase 1", "python-1"),
-  ...lectureTasks("2026-06-16", "math-1", 16, 18, "Phase 1"),
-  task("2026-06-16", "Python 1 L2", "lecture", 2, "Phase 1", "python-1"),
-  task("2026-06-16", "Python coding practice", "coding", 1, "Phase 1", "python-1"),
-  ...lectureTasks("2026-06-17", "math-1", 19, 21, "Phase 1"),
-  task("2026-06-17", "Intro to AI L2", "lecture", 2, "Phase 1", "intro-ai"),
-  task("2026-06-17", "Python coding practice", "coding", 1, "Phase 1", "python-1"),
-  ...lectureTasks("2026-06-18", "math-1", 22, 24, "Phase 1"),
-  task("2026-06-18", "Python 1 L3", "lecture", 2, "Phase 1", "python-1"),
-  task("2026-06-18", "Python coding practice", "coding", 1, "Phase 1", "python-1"),
-  ...lectureTasks("2026-06-19", "math-1", 25, 27, "Phase 1"),
-  task("2026-06-19", "Intro to AI L3", "lecture", 2, "Phase 1", "intro-ai"),
-  task("2026-06-19", "Python coding practice", "coding", 1, "Phase 1", "python-1"),
-
-  ...lectureTasks("2026-06-20", "math-2", 1, 2, "Phase 2"),
-  task("2026-06-20", "Python 1 L4", "lecture", 2, "Phase 2", "python-1"),
-  task("2026-06-20", "Python coding practice", "coding", 1, "Phase 2", "python-1"),
-  ...lectureTasks("2026-06-21", "math-2", 3, 4, "Phase 2"),
-  task("2026-06-21", "Intro to AI L4", "lecture", 2, "Phase 2", "intro-ai"),
-  task("2026-06-21", "Python coding practice", "coding", 1, "Phase 2", "python-1"),
-  ...lectureTasks("2026-06-22", "math-2", 5, 6, "Phase 2"),
-  task("2026-06-22", "Python 1 L5", "lecture", 2, "Phase 2", "python-1"),
-  task("2026-06-22", "Python coding practice", "coding", 1, "Phase 2", "python-1"),
-  ...lectureTasks("2026-06-23", "math-2", 7, 8, "Phase 2"),
-  task("2026-06-23", "Intro to AI L5", "lecture", 2, "Phase 2", "intro-ai"),
-  task("2026-06-23", "Python coding practice", "coding", 1, "Phase 2", "python-1"),
-  ...lectureTasks("2026-06-24", "math-2", 9, 10, "Phase 2"),
-  task("2026-06-24", "Python 1 L6", "lecture", 2, "Phase 2", "python-1"),
-  task("2026-06-24", "Python coding practice", "coding", 1, "Phase 2", "python-1"),
-  ...lectureTasks("2026-06-25", "math-2", 11, 12, "Phase 2"),
-  task("2026-06-25", "Intro to AI L6", "lecture", 2, "Phase 2", "intro-ai"),
-  task("2026-06-25", "Python coding practice", "coding", 1, "Phase 2", "python-1"),
-  ...lectureTasks("2026-06-26", "math-2", 13, 14, "Phase 2"),
-  task("2026-06-26", "Python 1 L7", "lecture", 2, "Phase 2", "python-1"),
-  task("2026-06-26", "Python coding practice", "coding", 1, "Phase 2", "python-1"),
-  ...lectureTasks("2026-06-27", "math-2", 15, 16, "Phase 2"),
-  task("2026-06-27", "Intro to AI L7", "lecture", 2, "Phase 2", "intro-ai"),
-  task("2026-06-27", "Python coding practice", "coding", 1, "Phase 2", "python-1"),
-  ...lectureTasks("2026-06-28", "math-2", 17, 18, "Phase 2"),
-  task("2026-06-28", "Python 1 L8", "lecture", 2, "Phase 2", "python-1"),
-  task("2026-06-28", "Python coding practice", "coding", 1, "Phase 2", "python-1"),
-  ...lectureTasks("2026-06-29", "math-2", 19, 20, "Phase 2"),
-  task("2026-06-29", "Intro to AI L8", "lecture", 2, "Phase 2", "intro-ai"),
-  task("2026-06-29", "Python coding practice", "coding", 1, "Phase 2", "python-1"),
-
-  ...lectureTasks("2026-06-30", "math-2", 21, 22, "Phase 3"),
-  task("2026-06-30", "Python 1 L9", "lecture", 2, "Phase 3", "python-1"),
-  task("2026-06-30", "Python coding practice", "coding", 1, "Phase 3", "python-1"),
-  ...lectureTasks("2026-07-01", "math-2", 23, 24, "Phase 3"),
-  task("2026-07-01", "Intro to AI L9", "lecture", 2, "Phase 3", "intro-ai"),
-  task("2026-07-01", "Python coding practice", "coding", 1, "Phase 3", "python-1"),
-  ...lectureTasks("2026-07-02", "math-2", 25, 26, "Phase 3"),
-  task("2026-07-02", "Python 1 L10", "lecture", 2, "Phase 3", "python-1"),
-  task("2026-07-02", "Python coding practice", "coding", 1, "Phase 3", "python-1"),
-  task("2026-07-03", "Math 2 L27", "lecture", 2, "Phase 3", "math-2"),
-  task("2026-07-03", "Python 1 L11", "lecture", 2, "Phase 3", "python-1"),
-  task("2026-07-03", "Intro to AI L10", "lecture", 2, "Phase 3", "intro-ai"),
-  task("2026-07-03", "Python coding practice", "coding", 1, "Phase 3", "python-1"),
-
-  task("2026-07-04", "Math 2 revise L1-L7", "revision", 4, "Phase 4", "math-2"),
-  task("2026-07-04", "Python coding set", "coding", 2, "Phase 4", "python-1"),
-  task("2026-07-05", "Math 2 revise L8-L14", "revision", 4, "Phase 4", "math-2"),
-  task("2026-07-05", "Python coding set", "coding", 2, "Phase 4", "python-1"),
-  task("2026-07-06", "Math 2 revise L15-L21", "revision", 4, "Phase 4", "math-2"),
-  task("2026-07-06", "Python coding set", "coding", 2, "Phase 4", "python-1"),
-  task("2026-07-07", "Math 2 revise L22-L27", "revision", 4, "Phase 4", "math-2"),
-  task("2026-07-07", "Python coding set", "coding", 2, "Phase 4", "python-1"),
-  task("2026-07-08", "Math 2 mock exam", "mock", 3, "Phase 4", "math-2"),
-  task("2026-07-08", "Math 2 mistake review", "revision", 2, "Phase 4", "math-2"),
-  task("2026-07-08", "Light Python recap", "recap", 1, "Phase 4", "python-1"),
-  task("2026-07-09", "Math 2 final review", "revision", 3, "Phase 4", "math-2"),
-  task("2026-07-09", "Math 2 weak problems", "revision", 2, "Phase 4", "math-2"),
-  task("2026-07-09", "Light Python and Intro AI recap", "recap", 1, "Phase 4"),
-  task("2026-07-10", "Math 2 exam", "exam", 0, "Phase 4", "math-2"),
-
-  task("2026-07-11", "Python mock/theory", "mock", 3, "Phase 5", "python-1"),
-  task("2026-07-11", "Intro to AI revise L1-L5", "revision", 3, "Phase 5", "intro-ai"),
-  task("2026-07-12", "Python mistake review", "revision", 2, "Phase 5", "python-1"),
-  task("2026-07-12", "Python common coding patterns", "coding", 2, "Phase 5", "python-1"),
-  task("2026-07-12", "Intro to AI revise L6-L10", "revision", 2, "Phase 5", "intro-ai"),
-  task("2026-07-13", "Python full revision", "revision", 3, "Phase 5", "python-1"),
-  task("2026-07-13", "Intro to AI mock/key questions", "mock", 3, "Phase 5", "intro-ai"),
-  task("2026-07-14", "Python final light review", "revision", 2, "Phase 5", "python-1"),
-  task("2026-07-14", "Intro to AI final review", "revision", 2, "Phase 5", "intro-ai"),
-  task("2026-07-14", "Exam checklist", "recap", 1, "Phase 5"),
-  task("2026-07-15", "Python 1 exam", "exam", 0, "Phase 5", "python-1"),
-  task("2026-07-15", "Intro to AI exam", "exam", 0, "Phase 5", "intro-ai"),
-];
-
-const statisticsAiTasks: StudyTask[] = [
-  ...lectureTasks("2026-07-16", "statistics-ai", 1, 2, "After July exams"),
-  ...lectureTasks("2026-07-23", "statistics-ai", 3, 4, "After July exams"),
-  ...lectureTasks("2026-07-30", "statistics-ai", 5, 6, "After July exams"),
-  ...lectureTasks("2026-08-06", "statistics-ai", 7, 8, "After July exams"),
-  ...lectureTasks("2026-08-13", "statistics-ai", 9, 10, "After July exams"),
-  ...lectureTasks("2026-08-20", "statistics-ai", 11, 12, "After July exams"),
-  ...lectureTasks("2026-08-27", "statistics-ai", 13, 14, "After July exams"),
-  task("2026-09-03", "Statistics AI formulas and notes cleanup", "summary", 2, "September build", "statistics-ai"),
-  task("2026-09-10", "Statistics AI problem set revision", "revision", 3, "September build", "statistics-ai"),
-  task("2026-09-17", "Statistics AI mock questions", "mock", 3, "September build", "statistics-ai"),
-  task("2026-09-24", "Statistics AI weak-topic revision", "revision", 3, "September build", "statistics-ai"),
-  task("2026-10-01", "Statistics AI full revision block 1", "revision", 3, "October revision", "statistics-ai"),
-  task("2026-10-04", "Statistics AI full revision block 2", "revision", 3, "October revision", "statistics-ai"),
-  task("2026-10-08", "Statistics AI full revision block 3", "revision", 3, "October revision", "statistics-ai"),
-  task("2026-10-11", "Statistics AI mock exam", "mock", 3, "October revision", "statistics-ai"),
-  task("2026-10-15", "Statistics AI mistake review", "revision", 3, "October revision", "statistics-ai"),
-  task("2026-10-18", "Statistics AI final problem sweep", "revision", 3, "October revision", "statistics-ai"),
-  task("2026-10-23", "Statistics AI final light review", "revision", 2, "October revision", "statistics-ai"),
-  task("2026-10-24", "Statistics AI exam", "exam", 0, "October revision", "statistics-ai"),
-];
-
-const adsTasks: StudyTask[] = [
-  task("2026-07-18", "ADS 1 L1 summary and Python implementation", "lecture", 2, "After July exams", "ads-1"),
-  task("2026-07-25", "ADS 1 L2 summary and Python implementation", "lecture", 2, "After July exams", "ads-1"),
-  task("2026-08-01", "ADS 1 L3 summary and Python implementation", "lecture", 2, "After July exams", "ads-1"),
-  task("2026-08-08", "ADS 1 L4 summary and Python implementation", "lecture", 2, "After July exams", "ads-1"),
-  task("2026-08-15", "ADS 1 L5 summary and Python implementation", "lecture", 2, "After July exams", "ads-1"),
-  task("2026-08-29", "ADS 1 L6 summary and Python implementation", "lecture", 2, "After July exams", "ads-1"),
-  task("2026-09-05", "ADS 1 L7 summary and Python implementation", "lecture", 2, "September to mid October", "ads-1"),
-  task("2026-09-12", "ADS 1 L8 summary and Python implementation", "lecture", 2, "September to mid October", "ads-1"),
-  task("2026-09-19", "ADS 1 L9 summary and Python implementation", "lecture", 2, "September to mid October", "ads-1"),
-  task("2026-09-26", "ADS 1 L10 summary and Python implementation", "lecture", 2, "September to mid October", "ads-1"),
-  task("2026-10-03", "ADS 1 L11 summary and Python implementation", "lecture", 2, "September to mid October", "ads-1"),
-  task("2026-10-10", "ADS 1 L12 summary and Python implementation", "lecture", 2, "September to mid October", "ads-1"),
-];
 
 export const seedData: StudyState = {
-  courses,
-  tasks: [...juneJulyTasks, ...statisticsAiTasks, ...adsTasks],
+  courses: [],
+  tasks: [],
+  boardNotes: [],
   settings: {
     autoPlan: false,
     autoPlanIntervalHours: 24,
     maxDailyHours: 8,
-    startDate: "2026-06-14",
+    startDate: localToday(),
+    planEndDate: undefined,
+    holidays: [],
+    customStudyHours: [],
+    restrictedDays: [],
     defaultTaskHours: 1,
     warningThresholdHours: 8,
     showCompletedTasks: true,
@@ -278,4 +32,5 @@ export const seedData: StudyState = {
     language: "en",
     theme: "razor",
   },
+  profile: { name: "", birthday: "", institution: "" },
 };

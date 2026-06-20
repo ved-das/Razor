@@ -655,7 +655,7 @@ function normalizedSettings(settings?: Partial<PlannerSettings>): PlannerSetting
     autoPlan: settings?.autoPlan ?? false,
     autoPlanIntervalHours: Math.min(Math.max(settings?.autoPlanIntervalHours ?? 24, 1), 24),
     maxDailyHours: settings?.maxDailyHours ?? 8,
-    startDate: settings?.startDate ?? "2026-06-14",
+    startDate: settings?.startDate ?? todayKey(),
     planEndDate: settings?.planEndDate,
     holidays: settings?.holidays ?? [],
     customStudyHours: settings?.customStudyHours ?? (settings?.restrictedDays ?? []).map((day) => ({ date: day.date, hours: day.maxHours })),
@@ -708,7 +708,7 @@ export default function Home() {
   const [state, setState] = useState<StudyState>(() => rolloverStudyState(loadStudyState(), new Date()));
   const settings = normalizedSettings(state.settings);
   const today = activeStudyDate(now, settings);
-  const profile = state.profile ?? { name: "Ved", birthday: "", institution: "" };
+  const profile = state.profile ?? { name: "", birthday: "", institution: "" };
   const [dismissedLateNightKey, setDismissedLateNightKey] = useState<string | null>(null);
 
   useEffect(() => {
@@ -1001,7 +1001,7 @@ export default function Home() {
     setState((current) => ({
       ...current,
       profile: {
-        name: current.profile?.name ?? "Ved",
+        name: current.profile?.name ?? "",
         birthday: current.profile?.birthday ?? "",
         institution: current.profile?.institution ?? "",
         ...patch,

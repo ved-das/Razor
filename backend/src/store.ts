@@ -51,7 +51,7 @@ export function normalizeState(value: unknown): StudyState {
     tasks: Array.isArray(value.tasks) ? value.tasks.map((task) => ({ ...task })) as StudyState["tasks"] : [],
     boardNotes: Array.isArray(value.boardNotes) ? value.boardNotes.map((note) => ({ ...note })) as StudyState["boardNotes"] : [],
     settings: isRecord(value.settings) ? { ...value.settings } as StudyState["settings"] : seedData.settings,
-    profile: isRecord(value.profile) ? { ...value.profile } as StudyState["profile"] : { name: "Ved", birthday: "", institution: "" },
+    profile: isRecord(value.profile) ? { ...value.profile } as StudyState["profile"] : { name: "", birthday: "", institution: "" },
   };
 }
 

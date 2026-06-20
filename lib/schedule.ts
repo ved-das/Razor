@@ -1,7 +1,5 @@
 import type { Course, CourseProgress, Priority, RiskLevel, StudyTask, StudyState } from "./types";
 
-export const PLAN_START_DATE = "2026-06-14";
-
 export function dateKey(date: Date) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -9,9 +7,10 @@ export function dateKey(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
+export const PLAN_START_DATE = dateKey(new Date());
+
 export function todayKey(date = new Date()) {
-  const actualToday = dateKey(date);
-  return actualToday < PLAN_START_DATE ? PLAN_START_DATE : actualToday;
+  return dateKey(date);
 }
 
 export function formatDate(dateKeyValue: string) {

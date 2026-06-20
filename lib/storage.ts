@@ -1,5 +1,5 @@
 import { seedData } from "./seedData";
-import { lectureNumbersFromTitle } from "./schedule";
+import { lectureNumbersFromTitle, todayKey } from "./schedule";
 import type { BoardNote, Course, PlannerSettings, StudyMethod, StudyState, StudyTask, TaskType, UserProfile } from "./types";
 
 const STORAGE_KEY = "razor:v1";
@@ -44,7 +44,7 @@ export function createBlankStudyState(): StudyState {
       autoPlan: false,
       autoPlanIntervalHours: 24,
       maxDailyHours: 8,
-      startDate: "2026-06-14",
+      startDate: todayKey(),
       planEndDate: undefined,
       holidays: [],
       customStudyHours: [],
@@ -60,7 +60,7 @@ export function createBlankStudyState(): StudyState {
       language: "en",
       theme: "razor",
     },
-    profile: { name: "Ved", birthday: "", institution: "" },
+    profile: { name: "", birthday: "", institution: "" },
   };
 }
 
@@ -69,16 +69,16 @@ function normalizeStudyState(value: unknown): StudyState {
 
   const courses = Array.isArray(value.courses)
     ? dedupeById(value.courses.map(normalizeCourse).filter((course): course is Course => Boolean(course)))
-    : cloneStudyState(seedData).courses;
+    : [];
   const courseIds = new Set(courses.map((course) => course.id));
   const tasks = Array.isArray(value.tasks)
     ? dedupeById(value.tasks.map((task) => normalizeTask(task, courseIds)).filter((task): task is StudyTask => Boolean(task)))
-    : cloneStudyState(seedData).tasks;
+    : [];
   const settings = normalizeSettings(value.settings);
   const profile = normalizeProfile(value.profile);
   const boardNotes = Array.isArray(value.boardNotes)
     ? dedupeById(value.boardNotes.map(normalizeBoardNote).filter((note): note is BoardNote => Boolean(note)))
-    : cloneStudyState(seedData).boardNotes ?? [];
+    : [];
 
   return {
     courses: recomputeCourseLectureProgress(courses, tasks),
@@ -216,7 +216,7 @@ function normalizeSettings(value: unknown): PlannerSettings {
       autoPlan: false,
       autoPlanIntervalHours: 24,
       maxDailyHours: 8,
-      startDate: "2026-06-14",
+      startDate: todayKey(),
       defaultTaskHours: 1,
       warningThresholdHours: 8,
       showCompletedTasks: true,
@@ -234,7 +234,7 @@ function normalizeSettings(value: unknown): PlannerSettings {
     autoPlan: Boolean(value.autoPlan),
     autoPlanIntervalHours: Math.min(Math.max(positiveNumber(value.autoPlanIntervalHours, 24), 1), 24),
     maxDailyHours: Math.min(Math.max(positiveNumber(value.maxDailyHours, 8), 1), 24),
-    startDate: optionalIsoDate(value.startDate) ?? "2026-06-14",
+    startDate: optionalIsoDate(value.startDate) ?? todayKey(),
     planEndDate: optionalIsoDate(value.planEndDate),
     holidays: Array.isArray(value.holidays) ? Array.from(new Set(value.holidays.filter((date): date is string => typeof date === "string" && isIsoDate(date)))) : [],
     customStudyHours: normalizeCustomStudyHours(value.customStudyHours, value.restrictedDays),
@@ -264,10 +264,10 @@ function normalizeStudyDayOverride(value: unknown): PlannerSettings["studyDayOve
 }
 
 function normalizeProfile(value: unknown): UserProfile {
-  if (!isRecord(value)) return { name: "Ved", birthday: "", institution: "" };
+  if (!isRecord(value)) return { name: "", birthday: "", institution: "" };
 
   return {
-    name: typeof value.name === "string" && value.name.trim() ? value.name.trim() : "Ved",
+    name: typeof value.name === "string" ? value.name.trim() : "",
     birthday: typeof value.birthday === "string" ? value.birthday : "",
     institution: typeof value.institution === "string" ? value.institution : "",
   };
@@ -298,7 +298,7 @@ function cloneStudyState(state: StudyState): StudyState {
     tasks: state.tasks.map((task) => ({ ...task })),
     boardNotes: state.boardNotes?.map((note) => ({ ...note })) ?? [],
     settings: state.settings ? { ...state.settings } : undefined,
-    profile: state.profile ? { ...state.profile } : { name: "Ved", birthday: "", institution: "" },
+    profile: state.profile ? { ...state.profile } : { name: "", birthday: "", institution: "" },
   };
 }
 
