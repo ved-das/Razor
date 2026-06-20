@@ -199,6 +199,9 @@ function normalizeTask(value: unknown, courseIds: Set<string>): StudyTask | null
     studyMethodId: typeof value.studyMethodId === "string" ? value.studyMethodId : undefined,
     studyMethodItem: positiveNumber(value.studyMethodItem, 0) || undefined,
     planningOrder: typeof value.planningOrder === "number" && Number.isFinite(value.planningOrder) ? value.planningOrder : undefined,
+    parentTaskId: typeof value.parentTaskId === "string" ? value.parentTaskId : undefined,
+    segmentNumber: positiveNumber(value.segmentNumber, 0) || undefined,
+    segmentCount: positiveNumber(value.segmentCount, 0) || undefined,
   };
 }
 

@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "check:scheduler": "node scripts/verify-scheduler.mjs",
+    "debug:scheduler": "node scripts/debug-scheduler.mjs",
     "start": "next start",
     "backend:build": "tsc -p backend/tsconfig.json",
     "backend:start": "node backend/dist/backend/src/server.js",

@@ -59,6 +59,9 @@ export type StudyTask = {
   studyMethodId?: string;
   studyMethodItem?: number;
   planningOrder?: number;
+  parentTaskId?: string;
+  segmentNumber?: number;
+  segmentCount?: number;
 };
 
 export type BoardColumn = "todo" | "inProgress" | "done";
@@ -91,12 +94,14 @@ export type PlannerCapacityWarning = {
 };
 
 export type PlannerValidationIssue = {
-  type: "capacity" | "deadline" | "dependency" | "holiday" | "order" | "revision";
-  severity: "warning" | "error";
+  type: "capacity" | "deadline" | "dependency" | "holiday" | "order" | "revision" | "duplicate" | "data" | "recovery";
+  severity: "info" | "warning" | "error";
   message: string;
   date?: string;
   courseId?: string;
   taskId?: string;
+  blockers?: string[];
+  suggestions?: string[];
 };
 
 export type CourseProgress = Course & {
