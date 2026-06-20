@@ -776,7 +776,14 @@ export default function Home() {
 
       const nextCompleted = !selectedTask.completed;
       const nextTasks = current.tasks.map((task) =>
-        task.id === taskId ? { ...task, completed: nextCompleted } : task,
+        task.id === taskId
+          ? {
+              ...task,
+              completed: nextCompleted,
+              completedAt: nextCompleted ? new Date().toISOString() : undefined,
+              studyDayDate: nextCompleted ? today : undefined,
+            }
+          : task,
       );
 
       const nextState = {
