@@ -1,0 +1,12 @@
+node_modules/
+.next/
+out/
+.tmp/
+.env
+src-tauri/target/
+src-tauri/Cargo.lock
+backend/dist/
+backend/data/
+prisma/dev.db
+prisma/dev.db-journal
+*.log
